@@ -34,6 +34,7 @@ jobs:
       run: terraform plan --var-file tfvars/common.tfvars --var-file tfvars/edge.tfvars
 
   terraform-apply:
+    needs: terraform-plan
     runs-on: ubuntu-latest
     env:
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
