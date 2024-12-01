@@ -48,6 +48,7 @@ def invoke_dataflow(settings: Settings, source_file: str, target_table: str) -> 
     client = dataflow_v1beta3.FlexTemplatesServiceClient()
     request = dataflow_v1beta3.LaunchFlexTemplateRequest(
         project_id="seb-data",
+        location=settings.region,
         launch_parameter={
             "job_name": settings.job_name,
             "container_spec_gcs_path": "gs://seb-data-edge-artifacts/"
