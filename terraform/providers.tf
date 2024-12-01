@@ -8,9 +8,9 @@ terraform {
 }
 
 provider "google" {
-  project     = var.gcp_project
-  region      = var.region
-  credentials = "../gcp-credentials.json"
+  project = var.gcp_project
+  region  = var.region
+  # credentials = "../gcp-credentials.json"
   default_labels = {
     service     = var.service
     environment = var.env
