@@ -2,6 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
+- [TODOS](#todos)
 - [Requirements](#requirements)
 - [Providers](#providers)
 - [Modules](#modules)
@@ -10,6 +11,13 @@
 - [Outputs](#outputs)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## TODOS
+
+- Move Terraform and gcloud steps in CI to composite actions fo re-usability
+- Add CI jobs for tests
+- Move building to CI
+- General cleanup
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements

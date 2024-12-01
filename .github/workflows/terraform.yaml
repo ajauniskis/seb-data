@@ -13,10 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      GOOGLE_PROJECT_ID: ${{ vars.GOOGLE_PROJECT_ID }}
     defaults:
         run:
           shell: bash
-          working-directory: ./terraform 
+          working-directory: ./terraform
 
     steps:
     - name: Checkout repository
@@ -38,10 +39,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      GOOGLE_PROJECT_ID: ${{ vars.GOOGLE_PROJECT_ID }}
     defaults:
         run:
           shell: bash
-          working-directory: ./terraform 
+          working-directory: ./terraform
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
@@ -55,6 +57,12 @@ jobs:
 
     - name: Terraform Init
       run: terraform init
+
+    - name: GCloud Auth
+      run: |
+        echo ${GOOGLE_CREDENTIALS} > $HOME/gcloud.json
+        gcloud auth activate-service-account --key-file=$HOME/gcloud.json
+        gcloud config set project "${GOOGLE_PROJECT_ID}"
 
     - name: Terraform Apply
       run: terraform apply --var-file tfvars/common.tfvars --var-file tfvars/edge.tfvars -auto-approve
