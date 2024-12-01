@@ -1,0 +1,4 @@
+functions-framework==3.*
+pydantic-settings==2.6.1
+google-cloud-dataflow-client==0.8.14
+# apache-beam[gcp,dataframe]==2.61.0

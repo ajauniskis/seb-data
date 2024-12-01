@@ -1,0 +1,27 @@
+{
+  "image": "${image}",
+  "metadata": {
+    "name": "gcs-to-bq",
+    "description": "Dataflow pipeline to ingest GCS files to BQ",
+    "parameters": [
+      {
+        "name": "input_file",
+        "label": "Input file.",
+        "helpText": "Name of the input GCS file."
+      },
+      {
+        "name": "output_bq_table",
+        "label": "Output BQ Table.",
+        "helpText": "Name of the Output BQ Table."
+      },
+      {
+        "name": "project_id",
+        "label": "Project ID.",
+        "helpText": "Name of the GCP Project."
+      }
+    ]
+  },
+  "sdkInfo": {
+    "language": "PYTHON"
+  }
+}

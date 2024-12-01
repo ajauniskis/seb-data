@@ -1,0 +1,18 @@
+# Python
+*.env
+*.venv
+*.virtualenv
+*.pyc
+__pycache__
+
+# Terraform
+.terraform*
+*.tfstate*
+secrets.tfvars
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+
+*credentials*
+build
