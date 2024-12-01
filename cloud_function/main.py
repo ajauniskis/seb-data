@@ -1,7 +1,5 @@
 import functions_framework
 from cloudevents.http import CloudEvent
-
-# from gcs_to_bq import GcsToBigQueryPipeline
 from google.cloud import dataflow_v1beta3
 from pydantic_settings import BaseSettings
 
@@ -30,7 +28,7 @@ class Settings(BaseSettings):
 
 
 @functions_framework.cloud_event
-def handler(cloud_event: CloudEvent):
+def handler(cloud_event: CloudEvent) -> None:
     settings = Settings()  # pyright: ignore reportCallIssue
     data = cloud_event.data
     attrs = data["message"]["attributes"]
@@ -45,41 +43,15 @@ def handler(cloud_event: CloudEvent):
         f"{settings.service}:{settings.bq_dataset_name}.{table_name}",
     )
 
-    # invoke_dataflow(
-    #     settings,
-    #     bucket,
-    #     file,
-    #     settings.bq_dataset_name,
-    #     table_name,
-    # )
 
-
-# def invoke_dataflow(
-#     settings: Settings,
-#     bucket: str,
-#     file: str,
-#     bq_dataset_name: str,
-#     bq_table_name: str,
-# ):
-#     pipe = GcsToBigQueryPipeline(
-#         input_file=f"gs://{bucket}/{file}",
-#         output_bq_table=f"{settings.project_id}:{bq_dataset_name}.{bq_table_name}",
-#         project_id=settings.project_id,
-#         temp_path=settings.dataflow_temp_path,
-#         staging_path=settings.dataflow_stage_path,
-#         region=settings.region,
-#         job_name=settings.dataflow_job_name,
-#     )
-#     pipe.run()
-
-
-def invoke_dataflow(settings: Settings, source_file: str, target_table: str):
+def invoke_dataflow(settings: Settings, source_file: str, target_table: str) -> None:
     client = dataflow_v1beta3.FlexTemplatesServiceClient()
     request = dataflow_v1beta3.LaunchFlexTemplateRequest(
         project_id="seb-data",
         launch_parameter={
             "job_name": settings.job_name,
-            "container_spec_gcs_path": "gs://seb-data-edge-artifacts/dataflow/gcs-to-bq-tpl.json",
+            "container_spec_gcs_path": "gs://seb-data-edge-artifacts/"
+            "dataflow/gcs-to-bq-tpl.json",
             "parameters": {
                 "input_file": source_file,
                 "output_bq_table": target_table,

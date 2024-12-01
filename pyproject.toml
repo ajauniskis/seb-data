@@ -4,20 +4,55 @@ version = "0.1.0"
 description = ""
 authors = ["ajauniskis <jauniskis.a@gmail.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
 pydantic-settings = "^2.6.1"
 functions-framework = "^3.8.2"
-
+google-cloud-dataflow-client = "^0.8.14"
 
 [tool.poetry.group.dev.dependencies]
-google-cloud-storage = "^2.18.2"
-google-cloud-dataflow-client = "^0.8.14"
-google-api-core = "^2.23.0"
-google-api-python-client = "^2.154.0"
-cloudevents = "^1.11.0"
+pytest = "^8.3.4"
+flake8-pyproject = "^1.2.3"
+
+[tool.poetry.group.dataflow.dependencies]
+apache-beam = {extras = ["gcp"], version = "^2.61.0"}
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.bandit]
+exclude_dirs = ["venv", "env", "tests"]
+
+[tool.flake8]
+max-line-length = 88
+exclude = [".venv", "__pycache__"]
+ignore = [
+    "W503", # Line break occurred before a binary operator (W503)
+]
+
+[tool.pyright]
+reportMissingImports = true
+reportTypedDictNotRequiredAccess = false
+venv = ".venv"
+venvPath = "."
+exclude = [
+    "**/__pycache__",
+    ".venv",
+    "**/tests",
+    "**/tests",
+    "**/.*",
+    "**/env",
+    "**/venv",
+]
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "pass", "if TYPE_CHECKING:"]
+omit = ["tests/*"]
+
+
+[tool.pytest.ini_options]
+pythonpath = ["cloud_function", "dataflow"]
