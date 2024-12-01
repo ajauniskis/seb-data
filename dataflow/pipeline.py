@@ -17,7 +17,7 @@ class Options(PipelineOptions):
     def _add_argparse_args(cls, parser):
         parser.add_argument("--input_file", help="Project", required=True)
         parser.add_argument("--output_bq_table", help="Pub Sub", required=True)
-        parser.add_argument("--project_id", help="Pub Sub", required=True)
+        parser.add_argument("--project_id", help="Project ID", required=True)
         parser.add_argument(
             "--template_location",
             default="gs://seb-data-edge-artifacts/dataflow/gcs-to-bq-tpl.json",
@@ -43,6 +43,8 @@ def run_pipeline(input_file, output_bq_table, beam_options):
             write_disposition=BigQueryDisposition.WRITE_APPEND,
             create_disposition=BigQueryDisposition.CREATE_IF_NEEDED,
         )  # pyright: ignore reportUnusedExpression
+
+    pipeline.run().wait_until_finish()
 
 
 if __name__ == "main":
