@@ -29,7 +29,7 @@ repos:
     rev: v0.37.0
     hooks:
       - id: markdownlint-docker
-        entry: ghcr.io/igorshubovych/markdownlint-cli --fix --disable=MD013 --disable=MD041 --disable=MD033 --disable=MD051
+        entry: ghcr.io/igorshubovych/markdownlint-cli --fix --disable=MD013 --disable=MD041 --disable=MD033 --disable=MD051 --disable MD029
   - repo: https://github.com/thlorenz/doctoc
     rev: v2.2.0
     hooks:

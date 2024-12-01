@@ -2,22 +2,63 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [TODOS](#todos)
-- [Requirements](#requirements)
-- [Providers](#providers)
-- [Modules](#modules)
-- [Resources](#resources)
-- [Inputs](#inputs)
-- [Outputs](#outputs)
+- [Summary](#summary)
+  - [Used files](#used-files)
+  - [TODOS](#todos)
+- [Infrastructure](#infrastructure)
+  - [Requirements](#requirements)
+  - [Providers](#providers)
+  - [Modules](#modules)
+  - [Resources](#resources)
+  - [Inputs](#inputs)
+  - [Outputs](#outputs)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# Summary
+
+To accomplish the task, I implemented the following architecture in GCP:
+![docs/diagram.png](docs/diagram.png)
+
+1. Data Ingestion:
+  Two datasets, were downloaded and uploaded to Google Cloud Storage (GCS):
+    - [Yellow Taxi Trip Records](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
+    - [Taxi Zone Lookup Table](https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv)
+1. Pipeline Design:
+    - Triggering Event: A Pub/Sub topic was configured to monitor GCS for new file uploads.
+    - Processing Logic: A Cloud Function was set up to parse event metadata and trigger a Dataflow job.
+    - Data Transformation and Loading: The Dataflow job loaded the processed data into a BigQuery table.
+2. SQL Query for Insights:
+    - A SQL query was written in BigQuery to calculate the number of taxi trips originating in New York to other cities during a specific week, including weekends.
+
+    ```sql
+    SELECT
+      EXTRACT(YEAR FROM t.tpep_pickup_datetime) as year,
+      EXTRACT(WEEK(MONDAY) FROM t.tpep_pickup_datetime) as week,
+      count(*) as c
+    FROM `${var.gcp_project}.${google_bigquery_dataset.data.dataset_id}.yellowwtrip` t
+    WHERE t.DOLocationID = (
+      SELECT LocationID
+      FROM `${var.gcp_project}.${google_bigquery_dataset.data.dataset_id}.taxi_zone`
+      WHERE Zone = 'Outside of NYC'
+    )
+    GROUP BY 1, 2
+    LIMIT 1000
+    ```
+
+## Used files
+
+- [Yellow Taxi Trip Records](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
+- [Taxi Zone Lookup Table](https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv)
 
 ## TODOS
 
 - Move Terraform and gcloud steps in CI to composite actions fo re-usability
 - Add CI jobs for tests
-- Move building to CI
+- Move building to CI and use dependencies from [pyproject.toml](pyproject.toml)
 - General cleanup
+
+# Infrastructure
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
