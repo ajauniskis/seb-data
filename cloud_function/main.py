@@ -57,8 +57,6 @@ def invoke_dataflow(settings: Settings, source_file: str, target_table: str) -> 
                 "input_file": source_file,
                 "output_bq_table": target_table,
                 "project_id": settings.project_id,
-                "template_location": "gs://seb-data-edge-artifacts/"
-                "dataflow/gcs-to-bq-tpl.json",
             },
             "environment": {
                 "temp_location": settings.dataflow_temp_path,

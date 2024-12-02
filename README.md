@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
   - [Used files](#used-files)
+  - [Issues faced](#issues-faced)
   - [TODOS](#todos)
 - [Infrastructure](#infrastructure)
   - [Requirements](#requirements)
@@ -32,24 +33,46 @@ To accomplish the task, I implemented the following architecture in GCP:
     - A SQL query was written in BigQuery to calculate the number of taxi trips originating in New York to other cities during a specific week, including weekends.
 
     ```sql
-    SELECT
-      EXTRACT(YEAR FROM t.tpep_pickup_datetime) as year,
-      EXTRACT(WEEK(MONDAY) FROM t.tpep_pickup_datetime) as week,
-      count(*) as c
-    FROM `${var.gcp_project}.${google_bigquery_dataset.data.dataset_id}.yellowwtrip` t
-    WHERE t.DOLocationID = (
+    -- Define zones outside of NYC
+    WITH outside_nyc AS (
       SELECT LocationID
-      FROM `${var.gcp_project}.${google_bigquery_dataset.data.dataset_id}.taxi_zone`
+      FROM `seb-data.data.taxi_zone`
       WHERE Zone = 'Outside of NYC'
     )
-    GROUP BY 1, 2
+    -- Count trips ending outside NYC and starting within NYC
+    SELECT
+      EXTRACT(YEAR FROM t.tpep_pickup_datetime) AS trip_year,
+      EXTRACT(WEEK(MONDAY) FROM t.tpep_pickup_datetime) AS trip_week,
+      COUNT(*) AS trip_count
+    FROM `seb-data.data.yellowtrip` t
+    WHERE
+      t.DOLocationID IN (SELECT LocationID FROM outside_nyc) -- Drop-off is outside NYC
+      AND t.PULocationID NOT IN (SELECT LocationID FROM outside_nyc) -- Pick-up is not outside NYC
+    GROUP BY trip_year, trip_week
+    ORDER BY trip_year, trip_week
     LIMIT 1000
     ```
-
 ## Used files
 
 - [Yellow Taxi Trip Records](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
 - [Taxi Zone Lookup Table](https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv)
+
+## Issues faced
+
+Even though the Beam code works locally (see [local_test.py](local_test.py)) and the job succeeds:
+
+![docs/image.png](docs/image.png)
+
+I wansn't able to configure the dataflow job to start (probably something obvious that I'm missing):
+```
+Failed to read the job file : gs://seb-data-edge-artifacts/dataflow/stage/template_launches/2024-12-01_14_52_45-5002131900100443229/job_object with error message: (ab709521743ac3c8): Unable to open template file: gs://seb-data-edge-artifacts/dataflow/stage/template_launches/2024-12-01_14_52_45-5002131900100443229/job_object..
+```
+Related files:
+
+- [dataflow](dataflow)
+- [terraform/dataflow-tpl.json](terraform/dataflow-tpl.json)
+- [terraform/dataflow.tf](terraform/dataflow.tf)
+- [terraform/repository.tf](terraform/repository.tf)
 
 ## TODOS
 
@@ -85,7 +108,6 @@ No modules.
 |------|------|
 | [google_artifact_registry_repository.dataflow](https://registry.terraform.io/providers/hashicorp/google/6.12.0/docs/resources/artifact_registry_repository) | resource |
 | [google_bigquery_dataset.data](https://registry.terraform.io/providers/hashicorp/google/6.12.0/docs/resources/bigquery_dataset) | resource |
-| [google_bigquery_job.analysis](https://registry.terraform.io/providers/hashicorp/google/6.12.0/docs/resources/bigquery_job) | resource |
 | [google_bigquery_table.analysis](https://registry.terraform.io/providers/hashicorp/google/6.12.0/docs/resources/bigquery_table) | resource |
 | [google_cloudfunctions2_function.bq_ingest](https://registry.terraform.io/providers/hashicorp/google/6.12.0/docs/resources/cloudfunctions2_function) | resource |
 | [google_project_iam_binding.cf_dataflow_invoker](https://registry.terraform.io/providers/hashicorp/google/6.12.0/docs/resources/project_iam_binding) | resource |
