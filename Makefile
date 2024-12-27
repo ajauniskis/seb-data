@@ -17,3 +17,6 @@ tf-plan:
 
 tf:
 	cd terraform && terraform apply --var-file tfvars/common.tfvars --var-file tfvars/edge.tfvars
+
+tf-destroy:
+	cd terraform && terraform destroy --var-file tfvars/common.tfvars --var-file tfvars/edge.tfvars
